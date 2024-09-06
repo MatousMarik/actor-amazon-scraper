@@ -10,7 +10,7 @@ router.addDefaultHandler(() => {
 });
 
 router.addHandler(LABELS.START, async ({ $, log, addRequests }) => {
-    log.info("START route:");
+    log.debug("START route:");
     const products = $(
         'div.s-result-list div[data-asin][data-component-type=s-search-result]:not([data-asin=""])'
     );
@@ -41,7 +41,7 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests }) => {
         // console.log(title);
         // if (true) break;
     }
-    log.info(`Found ${requests.length} products.`);
+    log.debug(`Found ${requests.length} products.`);
     await addRequests(requests);
 });
 
