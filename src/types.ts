@@ -1,3 +1,3 @@
 export interface Input {
-    keyword: string
+    keyword: string;
 }

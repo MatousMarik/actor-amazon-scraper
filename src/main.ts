@@ -1,27 +1,30 @@
 // For more information, see https://crawlee.dev/
-import { CheerioCrawler, ProxyConfiguration, KeyValueStore, log } from 'crawlee';
-import { Actor } from 'apify';
-import { router } from './routes.js';
-import { Input } from './types.js';
+import { CheerioCrawler, KeyValueStore, log } from "crawlee";
+
+// import { Actor } from 'apify';
+import { LABELS, PRODUCT_LINK } from "./constants.js";
+import { router } from "./routes.js";
+import { Input } from "./types.js";
 
 // Grab our keyword from the input
-const { keyword = 'iphone' } = await KeyValueStore.getInput<Input>() ?? {};
+const { keyword = "iphone" } = (await KeyValueStore.getInput<Input>()) ?? {};
 
 const crawler = new CheerioCrawler({
     requestHandler: router,
-
-    // If you have access to Apify Proxy, you can use residential proxies and
-    // high retry count which helps with blocking
-    // If you don't, your local IP address will likely be fine for a few requests if you scrape slowly.
-    proxyConfiguration: await Actor.createProxyConfiguration({ countryCode: 'US' }),
-    // maxRequestRetries: 10,
+    navigationTimeoutSecs: 5,
+    // proxyConfiguration: await Actor.createProxyConfiguration({
+    //     countryCode: "US"
+    // }),
+    maxRequestRetries: 50
 });
 
-log.info('Starting.');
+log.info("Starting.");
 
-await crawler.run([{
-    url: `https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=${keyword}`,
-    label: 'START'
-}]);
+await crawler.run([
+    {
+        url: `${PRODUCT_LINK}${keyword}`,
+        label: LABELS.START
+    }
+]);
 
-log.info('Finished.');
+log.info("Finished.");
