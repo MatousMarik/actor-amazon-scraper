@@ -1,6 +1,7 @@
 import { createCheerioRouter, MissingRouteError } from "crawlee";
 
 import { LABELS, BASE_URL } from "./constants.js";
+import { MyRequest } from "./types.js";
 
 export const router = createCheerioRouter();
 
@@ -14,9 +15,9 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests }) => {
         'div.s-result-list div[data-asin][data-component-type=s-search-result]:not([data-asin=""])'
     );
 
-    const requests = [];
+    const requests: MyRequest[] = [];
     for (const product of products) {
-        const link = $("a.a-text-normal", product);
+        const link = $("div[data-cy=title-recipe] a.a-text-normal", product);
 
         const asin = product.attribs["data-asin"];
         const url = `${BASE_URL}${link.attr("href")}`;
@@ -37,6 +38,14 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests }) => {
                 }
             }
         });
+        // console.log(title);
+        // if (true) break;
     }
+    log.info(`Found ${requests.length} products.`);
     await addRequests(requests);
+});
+
+router.addHandler(LABELS.PRODUCT, ({ request }) => {
+    const { data } = (request as MyRequest).userData;
+    console.log(data.title);
 });

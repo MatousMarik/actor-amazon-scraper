@@ -2,7 +2,7 @@
 import { CheerioCrawler, KeyValueStore, log } from "crawlee";
 
 // import { Actor } from 'apify';
-import { LABELS, PRODUCT_LINK } from "./constants.js";
+import { BASE_URL, LABELS } from "./constants.js";
 import { router } from "./routes.js";
 import { Input } from "./types.js";
 
@@ -18,13 +18,15 @@ const crawler = new CheerioCrawler({
     maxRequestRetries: 50
 });
 
-log.info("Starting.");
-
-await crawler.run([
+await crawler.addRequests([
     {
-        url: `${PRODUCT_LINK}${keyword}`,
+        url: `${BASE_URL}/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=${keyword}`,
         label: LABELS.START
     }
 ]);
+
+log.info("Starting.");
+
+await crawler.run();
 
 log.info("Finished.");
