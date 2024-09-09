@@ -9,6 +9,7 @@ export interface MyRequest {
             title: string;
             asin: string;
             itemUrl: string;
+            price?: string;
             description?: string;
         };
     };

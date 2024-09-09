@@ -52,6 +52,7 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     const descriptionEl = $("#productDescription");
 
     // avoid captchas
+    // TODO: check rly captcha not missing description
     if (descriptionEl.length !== 1) {
         const err = new Error(
             "Description element not found (probably captcha)."
@@ -61,6 +62,9 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     }
     const description = descriptionEl.text().trim();
 
+    // add price, offer list shows without any price present, when there are no other offers
+    const price = $("#buybox .a-price .a-offscreen").text().trim();
+
     await addRequests([
         {
             url: `${BASE_URL}/gp/product/ajax/ref=dp_aod_ALL_mbc?asin=${data.asin}&pc=dp&experienceId=aodAjaxMain`,
@@ -68,6 +72,7 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
             userData: {
                 data: {
                     ...data,
+                    price,
                     description
                 }
             }
@@ -83,11 +88,14 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
     const offerElementList = $("#aod-pinned-offer").add("#aod-offer");
 
     for (const offerElement of offerElementList) {
-        const price = $(".a-price .a-offscreen", offerElement)
-            .first() // awoid selecting discount
+        const price =
+            $(".a-price .a-offscreen", offerElement)
+                .first() // avoid selecting discount
+                .text()
+                .trim() || data.price; // if no price present use default
+        const sellerName = $("#aod-offer-soldBy [aria-label]", offerElement)
             .text()
             .trim();
-        const sellerName = $("#aod-offer-soldBy a", offerElement).text().trim();
         await Dataset.pushData({ ...data, price, sellerName });
     }
 });
