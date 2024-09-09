@@ -45,7 +45,41 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests }) => {
     await addRequests(requests);
 });
 
-router.addHandler(LABELS.PRODUCT, ({ request }) => {
+router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     const { data } = (request as MyRequest).userData;
-    console.log(data.title);
+    log.info(`PRODUCT ${data.asin} route:`);
+    console.log(request.loadedUrl);
+
+    const descriptionEl = $('#productDescription');
+
+    // console.log("RETRY COUNT: ", request.retryCount);
+    console.log(descriptionEl.length);
+    // console.log(descriptionEl);
+
+    // avoid captchas
+    if (descriptionEl.length !== 1) {
+        const err = new Error('Description element not found (probably captcha).');
+        request.pushErrorMessage(err);
+        throw err;
+    }
+    const description = descriptionEl.text().trim();
+    
+    console.log("Description: \n", description);
+    
+    // const html = $.html();
+    // writeFile("p.html", html, (err) => {
+    //     if (err) throw err;
+    //     console.log('The file has been saved!');
+    //   });
+
+    await addRequests([{
+        url: `${BASE_URL}/gp/product/ajax/ref=dp_aod_ALL_mbc?asin=${data.asin}&pc=dp&experienceId=aodAjaxMain`,
+        label: LABELS.OFFERS,
+        userData: {
+            data: {
+                ...data,
+                description
+            }
+        }
+    }]);
 });
