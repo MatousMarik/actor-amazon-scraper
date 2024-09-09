@@ -1,5 +1,5 @@
 // For more information, see https://crawlee.dev/
-import { CheerioCrawler, KeyValueStore, log } from "crawlee";
+import { CheerioCrawler, KeyValueStore, log, Dataset} from "crawlee";
 
 // import { Actor } from 'apify';
 import { BASE_URL, LABELS } from "./constants.js";
@@ -29,4 +29,5 @@ log.info("Starting.");
 
 await crawler.run();
 
+await Dataset.exportToJSON('results');
 log.info("Finished.");
