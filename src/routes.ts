@@ -1,5 +1,3 @@
-// import { writeFile } from "fs";
-
 import { createCheerioRouter, MissingRouteError, Dataset } from "crawlee";
 
 import { LABELS, BASE_URL } from "./constants.js";
@@ -25,8 +23,6 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests }) => {
         const url = `${BASE_URL}${link.attr("href")}`;
         const title = link.text().trim();
 
-        // console.log(asin, url, title);
-
         requests.push({
             url,
             label: LABELS.PRODUCT,
@@ -50,17 +46,18 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     log.debug(request.loadedUrl);
 
     const descriptionEl = $("#productDescription");
+    let description = descriptionEl.text().trim();
 
     // avoid captchas
     // TODO: check rly captcha not missing description
     if (descriptionEl.length !== 1) {
-        const err = new Error(
-            "Description element not found (probably captcha)."
-        );
-        request.pushErrorMessage(err);
-        throw err;
+        if ($("form[action*=/errors/validateCaptcha]").length > 0) {
+            const err = new Error("Captcha.");
+            request.pushErrorMessage(err);
+            throw err;
+        }
+        description = "Description not present.";
     }
-    const description = descriptionEl.text().trim();
 
     // add price, offer list shows without any price present, when there are no other offers
     const price = $("#buybox .a-price .a-offscreen").text().trim();
