@@ -18,7 +18,7 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests }) => {
     );
 
     const requests: MyRequest[] = [];
-    for (const product of products.slice(0, 1)) {
+    for (const product of products) {
         const link = $("div[data-cy=title-recipe] a.a-text-normal", product);
 
         const asin = product.attribs["data-asin"];
@@ -83,7 +83,10 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
     const offerElementList = $("#aod-pinned-offer").add("#aod-offer");
 
     for (const offerElement of offerElementList) {
-        const price = $(".a-price .a-offscreen", offerElement).text().trim();
+        const price = $(".a-price .a-offscreen", offerElement)
+            .first() // awoid selecting discount
+            .text()
+            .trim();
         const sellerName = $("#aod-offer-soldBy a", offerElement).text().trim();
         await Dataset.pushData({ ...data, price, sellerName });
     }
