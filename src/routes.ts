@@ -85,31 +85,14 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
 
 router.addHandler(LABELS.OFFERS, async ({$, request, log}) => {
     const { data } = (request as MyRequest).userData;
-    log.info(`OFFERS ${data.asin}:`);
+    log.debug(`OFFERS ${data.asin}:`);
 
-    // pinned offer
-    const pinnedOfferElement = $('#aod-pinned-offer');
-    // const price = $('.a-price .a-offscreen', pinnedOfferElement).text().trim();
-    // const sellerName = $('#aod-offer-soldBy a', pinnedOfferElement).text().trim();
-    // await Dataset.pushData({
-    //     ...data,
-    //     price,
-    //     sellerName,
-    //     pinned: true
-    // })
+    // pinned offer + offers
+    const offerElementList = $('#aod-pinned-offer').add('#aod-offer');
 
-    // TODO: check #aod-offer id 
-    // let offerElementList = $('#aod-offer-list').children('div#aod-offer');
-    let offerElementList = $('#aod-offer-list').children('div#aod-offer');
-    console.log(offerElementList.length);
-    // offerElementList = offerElementList.add(pinnedOfferElement.first());
-    // console.log(offerElementList.length);
-    offerElementList = offerElementList.add(pinnedOfferElement);
-    console.log(offerElementList.length);
     for (const offerElement of offerElementList){
         const price = $('.a-price .a-offscreen', offerElement).text().trim();
         const sellerName = $('#aod-offer-soldBy a', offerElement).text().trim();
         await Dataset.pushData({...data, price, sellerName});
     }
-    console.log("all good");
 });
