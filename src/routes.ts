@@ -11,6 +11,7 @@ router.addDefaultHandler(() => {
 
 router.addHandler(LABELS.START, async ({ $, log, addRequests }) => {
     log.debug("START route:");
+    // TODO: captcha check (now fails naturally)
     const products = $(
         'div.s-result-list div[data-asin][data-component-type=s-search-result]:not([data-asin=""])'
     );
@@ -34,7 +35,6 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests }) => {
                 }
             }
         });
-        // console.log(title);
     }
     log.debug(`Found ${requests.length} products.`);
     await addRequests(requests);
@@ -45,27 +45,35 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     log.debug(`PRODUCT ${data.asin} route:`);
     log.debug(request.loadedUrl);
 
-    const descriptionFeatureEl = $("#productDescription_feature_div");
+    // captcha
+    if ($("form[action*=/errors/validateCaptcha]").length > 0) {
+        const err = new Error("Captcha.");
+        request.pushErrorMessage(err);
+        throw err;
+    }
 
-    // avoid captchas
-    // TODO: check rly captcha not missing description
-    if (descriptionFeatureEl.length < 1) {
-        if ($("form[action*=/errors/validateCaptcha]").length > 0) {
-            const err = new Error("Captcha.");
-            request.pushErrorMessage(err);
-            throw err;
-        }
-
+    const descriptionFeaturesEl = $("#btf_arenas");
+    // check description part loaded
+    if (descriptionFeaturesEl.length < 1) {
         if (request.retryCount < (request.maxRetries || 50)) {
-            const err = new Error("Description not found.");
+            const err = new Error("Description block not found.");
             request.pushErrorMessage(err);
             throw err;
         }
     }
 
-    const description = $("#productDescription", descriptionFeatureEl)
+    let description = descriptionFeaturesEl
+        .find("#productDescription")
         .text()
         .trim();
+
+    // aplus description feature
+    if (description === "") {
+        description = descriptionFeaturesEl
+            .find(".launchpad-module-brand-description-left")
+            .text()
+            .trim();
+    }
 
     // add price, offer list shows without any price present, when there are no other offers
     const price = $("#buybox .a-price .a-offscreen").text().trim();
