@@ -45,19 +45,27 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     log.debug(`PRODUCT ${data.asin} route:`);
     log.debug(request.loadedUrl);
 
-    const descriptionEl = $("#productDescription");
-    let description = descriptionEl.text().trim();
+    const descriptionFeatureEl = $("#productDescription_feature_div");
 
     // avoid captchas
     // TODO: check rly captcha not missing description
-    if (descriptionEl.length !== 1) {
+    if (descriptionFeatureEl.length < 1) {
         if ($("form[action*=/errors/validateCaptcha]").length > 0) {
             const err = new Error("Captcha.");
             request.pushErrorMessage(err);
             throw err;
         }
-        description = "Description not present.";
+
+        if (request.retryCount < (request.maxRetries || 50)) {
+            const err = new Error("Description not found.");
+            request.pushErrorMessage(err);
+            throw err;
+        }
     }
+
+    const description = $("#productDescription", descriptionFeatureEl)
+        .text()
+        .trim();
 
     // add price, offer list shows without any price present, when there are no other offers
     const price = $("#buybox .a-price .a-offscreen").text().trim();
