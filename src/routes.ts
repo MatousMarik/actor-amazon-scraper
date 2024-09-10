@@ -1,28 +1,28 @@
-import { createCheerioRouter, MissingRouteError, Dataset } from "crawlee";
+import { createCheerioRouter, MissingRouteError, Dataset } from 'crawlee';
 
-import { LABELS, BASE_URL } from "./constants.js";
-import { MyRequest } from "./types.js";
+import { LABELS, BASE_URL } from './constants.js';
+import { MyRequest } from './types.js';
 
 export const router = createCheerioRouter();
 
 router.addDefaultHandler(() => {
-    throw new MissingRouteError("Default route reached.");
+    throw new MissingRouteError('Default route reached.');
 });
 
 router.addHandler(LABELS.START, async ({ $, log, addRequests, request }) => {
     const { data } = (request as MyRequest).userData;
-    log.debug("START route:");
+    log.debug('START route:');
     // TODO: captcha check (now fails naturally)
     const products = $(
-        'div.s-result-list div[data-asin][data-component-type=s-search-result]:not([data-asin=""])'
+        'div.s-result-list div[data-asin][data-component-type=s-search-result]:not([data-asin=""])',
     );
 
     const requests: MyRequest[] = [];
     for (const product of products) {
-        const link = $("div[data-cy=title-recipe] a.a-text-normal", product);
+        const link = $('div[data-cy=title-recipe] a.a-text-normal', product);
 
-        const asin = product.attribs["data-asin"];
-        const url = `${BASE_URL}${link.attr("href")}`;
+        const asin = product.attribs['data-asin'];
+        const url = `${BASE_URL}${link.attr('href')}`;
         const title = link.text().trim();
 
         requests.push({
@@ -33,9 +33,9 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests, request }) => {
                     ...data,
                     title,
                     asin,
-                    itemUrl: url
-                }
-            }
+                    itemUrl: url,
+                },
+            },
         });
     }
     log.debug(`Found ${requests.length} products.`);
@@ -48,13 +48,13 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     log.debug(request.loadedUrl);
 
     // captcha
-    if ($("form[action*=/errors/validateCaptcha]").length > 0) {
-        const err = new Error("Captcha.");
+    if ($('form[action*=/errors/validateCaptcha]').length > 0) {
+        const err = new Error('Captcha.');
         request.pushErrorMessage(err);
         throw err;
     }
 
-    const descriptionFeaturesEl = $("#btf_arenas");
+    const descriptionFeaturesEl = $('#btf_arenas');
     // check description part present
     if (descriptionFeaturesEl.length < 1) {
         // TODO: not sure why sometimes description is missing, when I load link in browser
@@ -62,40 +62,40 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
         // => so I add this to retry and process offers when description is not found
         // only for half of retries so captchas can be retried...
         if (request.retryCount < (request.maxRetries || 50) / 2) {
-            const err = new Error("Description block not found.");
+            const err = new Error('Description block not found.');
             request.pushErrorMessage(err);
             throw err;
         }
     }
 
     let description = descriptionFeaturesEl
-        .find("#productDescription")
+        .find('#productDescription')
         .text()
         .trim();
 
-    if (description === "") {
-        const aplus = descriptionFeaturesEl.find("#aplus_feature_div #aplus");
+    if (description === '') {
+        const aplus = descriptionFeaturesEl.find('#aplus_feature_div #aplus');
         if (aplus.length > 1) {
-            description = "aplus";
+            description = 'aplus';
         } else {
-            description = "not found";
+            description = 'not found';
         }
     }
 
     // add default price (offer list might have no price present, when there are no other offers)
-    let price = $("#corePrice_desktop .apexPriceToPay .a-offscreen")
+    let price = $('#corePrice_desktop .apexPriceToPay .a-offscreen')
         .first()
         .text()
         .trim();
 
     // another default price selector
-    if (price === "") {
-        price = $(".priceToPay").text().trim();
+    if (price === '') {
+        price = $('.priceToPay').text().trim();
     }
 
-    if (price === "" && $("#outOfStockBuyBox_feature_div").length > 0) {
+    if (price === '' && $('#outOfStockBuyBox_feature_div').length > 0) {
         // out of stock -> no offer for location
-        price = "undeliverable";
+        price = 'undeliverable';
     }
 
     await addRequests([
@@ -106,10 +106,10 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
                 data: {
                     ...data,
                     price,
-                    description
-                }
-            }
-        }
+                    description,
+                },
+            },
+        },
     ]);
 });
 
@@ -118,21 +118,19 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
     log.debug(`OFFERS ${data.asin}:`);
 
     // pinned offer + offers
-    const offerElementList = $("#aod-pinned-offer").add("#aod-offer");
+    const offerElementList = $('#aod-pinned-offer').add('#aod-offer');
 
     for (const offerElement of offerElementList) {
-        const price =
-            $(".a-price .a-offscreen", offerElement)
-                .first() // avoid selecting discount
-                .text()
-                .trim() || data.price; // if no price present use default
-        const sellerName = $("#aod-offer-soldBy [aria-label]", offerElement)
+        const price = $('.a-price .a-offscreen', offerElement)
+            .first() // avoid selecting discount
+            .text()
+            .trim() || data.price; // if no price present use default
+        const sellerName = $('#aod-offer-soldBy [aria-label]', offerElement)
             .text()
             .trim();
 
         // TODO: don't know why seller is not found but in such case only one result is added
-        if (sellerName === "" && request.retryCount < 10)
-            throw new Error("No seller found.");
+        if (sellerName === '' && request.retryCount < 10) throw new Error('No seller found.');
         await Dataset.pushData({ ...data, price, sellerName });
     }
 });
