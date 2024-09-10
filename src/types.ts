@@ -11,6 +11,7 @@ export interface MyRequest {
             asin: string;
             itemUrl: string;
             keyword: string;
+            defaultPrice?: string;
             price?: string;
             description?: string;
         };

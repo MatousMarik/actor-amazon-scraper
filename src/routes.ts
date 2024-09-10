@@ -95,6 +95,7 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
             userData: {
                 data: {
                     ...data,
+                    defaultPrice: price,
                     price,
                     description
                 }
