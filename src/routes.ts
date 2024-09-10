@@ -59,11 +59,11 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     const descriptionFeaturesEl = $("#btf_arenas");
     // check description part loaded
     if (descriptionFeaturesEl.length < 1) {
-        if (request.retryCount < (request.maxRetries || 50)) {
+        if (request.retryCount < (request.maxRetries || 50) - 1) {
             const err = new Error("Description block not found.");
             request.pushErrorMessage(err);
             const html = $.html();
-            writeFile(`htmls/${html}.html`, html, (e) => {
+            writeFile(`htmls/${data.asin}.html`, html, (e) => {
                 if (e) throw e;
                 console.log("The file has been saved!");
             });
