@@ -1,9 +1,18 @@
 {
-  "extends": [
-    "@apify/ts",
-    "@apify/eslint-config-ts",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "plugin:@typescript-eslint/strict",
-    "prettier"
-  ]
+    "root": true,
+    "env": {
+        "browser": true,
+        "es2020": true,
+        "node": true
+    },
+    "extends": ["@apify/eslint-config-ts"],
+    "parserOptions": {
+        "project": "./tsconfig.eslint.json",
+        "ecmaVersion": 2020
+    },
+    "ignorePatterns": ["node_modules", "dist", "**/*.d.ts"],
+    "rules": {
+        "@typescript-eslint/no-explicit-any": "warn",
+        "camelcase": "off"
+    }
 }
