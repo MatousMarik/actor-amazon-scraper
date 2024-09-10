@@ -1,6 +1,6 @@
 export interface Input {
     keyword: string;
-    useProxies: boolean;
+    useProxy: boolean;
 }
 export interface MyRequest {
     url: string;

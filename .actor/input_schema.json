@@ -17,5 +17,5 @@
             "prefill": true
         }
     },
-    "required": ["keyword"]
+    "required": []
 }

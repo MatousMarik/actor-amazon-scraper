@@ -1,6 +1,6 @@
 // For more information, see https://crawlee.dev/
 import { Actor } from 'apify';
-import { CheerioCrawler, KeyValueStore, log, Dataset } from 'crawlee';
+import { CheerioCrawler, log, Dataset } from 'crawlee';
 
 import { BASE_URL, LABELS } from './constants.js';
 import { router } from './routes.js';
@@ -8,10 +8,12 @@ import { Input } from './types.js';
 
 await Actor.init();
 
-// Grab our keyword from the input
-const { keyword = 'iphone', useProxies = 'false' } = (await KeyValueStore.getInput<Input>()) ?? {};
+const { keyword = 'iphone', useProxy = false } = (await Actor.getInput<Input>()) ?? {};
 
-const proxyConfiguration = useProxies
+// Grab our keyword from the input
+// const { keyword = 'iphone', useProxies = 'false' } = (await KeyValueStore.getInput<Input>()) ?? {};
+
+const proxyConfiguration = useProxy
     ? await Actor.createProxyConfiguration({
         countryCode: 'US',
     })
