@@ -125,6 +125,10 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
         const sellerName = $("#aod-offer-soldBy [aria-label]", offerElement)
             .text()
             .trim();
+
+        // TODO: don't know why seller is not found but in such case only one result is added
+        if (sellerName === "" && request.retryCount < 10)
+            throw new Error("No seller found.");
         await Dataset.pushData({ ...data, price, sellerName });
     }
 });
