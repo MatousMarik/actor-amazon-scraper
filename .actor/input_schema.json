@@ -1,0 +1,21 @@
+{
+    "title": "Scrape offers from amazon gor specified keyword",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "keyword": {
+            "title": "Product keyword",
+            "type": "string",
+            "description": "Keyword for the products, their corresponding offers you want to scrape.",
+            "editor": "textfield",
+            "prefill": "iphone"
+        },
+        "useProxy": {
+            "title": "Use US proxy",
+            "type": "boolean",
+            "description": "Whether to use US proxy.",
+            "prefill": true
+        }
+    },
+    "required": ["keyword"]
+}
