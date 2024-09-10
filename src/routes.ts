@@ -78,19 +78,20 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
         }
     }
 
-    // add default price (offer list has no price present, when there are no other offers)
+    // add default price (offer list might have no price present, when there are no other offers)
     let price = $("#corePrice_desktop .apexPriceToPay .a-offscreen")
         .first()
         .text()
         .trim();
 
+    // another default price selector
     if (price === "") {
         price = $(".priceToPay").text().trim();
     }
 
     if (price === "" && $("#outOfStockBuyBox_feature_div").length > 0) {
-        // out of stock -> no offer
-        price = "out-of-stock";
+        // out of stock -> no offer for location
+        price = "undeliverable";
     }
 
     await addRequests([
@@ -100,7 +101,6 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
             userData: {
                 data: {
                     ...data,
-                    defaultPrice: price,
                     price,
                     description
                 }
