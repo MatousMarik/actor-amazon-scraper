@@ -10,7 +10,7 @@ router.addDefaultHandler(() => {
 });
 
 router.addHandler(LABELS.START, async ({ $, log, addRequests, request }) => {
-    const { keyword } = request.userData;
+    const { data } = (request as MyRequest).userData;
     log.debug("START route:");
     // TODO: captcha check (now fails naturally)
     const products = $(
@@ -30,10 +30,10 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests, request }) => {
             label: LABELS.PRODUCT,
             userData: {
                 data: {
+                    ...data,
                     title,
                     asin,
-                    itemUrl: url,
-                    keyword
+                    itemUrl: url
                 }
             }
         });
