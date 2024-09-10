@@ -6,6 +6,8 @@ import { BASE_URL, LABELS } from './constants.js';
 import { router } from './routes.js';
 import { Input } from './types.js';
 
+await Actor.init();
+
 // Grab our keyword from the input
 const { keyword = 'iphone', useProxies = 'false' } = (await KeyValueStore.getInput<Input>()) ?? {};
 
@@ -39,4 +41,7 @@ log.info('Starting.');
 await crawler.run();
 
 await Dataset.exportToJSON('results');
+await Actor.pushData(Dataset.getData());
+
+await Actor.exit();
 log.info('Finished.');
