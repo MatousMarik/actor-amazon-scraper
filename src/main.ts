@@ -28,7 +28,9 @@ await crawler.addRequests([
         url: `${BASE_URL}/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=${keyword}`,
         label: LABELS.START,
         userData: {
-            keyword
+            data: {
+                keyword
+            }
         }
     }
 ]);
