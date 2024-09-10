@@ -69,13 +69,13 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
         .text()
         .trim();
 
-    // aplus description feature
     if (description === "") {
-        // description = descriptionFeaturesEl
-        //     .find("#aplus_feature_div #aplus")
-        //     .text()
-        //     .trim();
-        description = "aplus";
+        const aplus = descriptionFeaturesEl.find("#aplus_feature_div #aplus");
+        if (aplus.length > 1) {
+            description = "aplus";
+        } else {
+            description = "not found";
+        }
     }
 
     // add default price (offer list has no price present, when there are no other offers)
