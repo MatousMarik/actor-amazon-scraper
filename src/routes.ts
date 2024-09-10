@@ -55,14 +55,18 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     }
 
     const descriptionFeaturesEl = $("#btf_arenas");
-    // // check description part present
-    // if (descriptionFeaturesEl.length < 1) {
-    //     if (request.retryCount < (request.maxRetries || 50)) {
-    //         const err = new Error("Description block not found.");
-    //         request.pushErrorMessage(err);
-    //         throw err;
-    //     }
-    // }
+    // check description part present
+    if (descriptionFeaturesEl.length < 1) {
+        // TODO: not sure why sometimes description is missing, when I load link in browser
+        // it is always loaded fully by single request
+        // => so I add this to retry and process offers when description is not found
+        // only for half of retries so captchas can be retried...
+        if (request.retryCount < (request.maxRetries || 50) / 2) {
+            const err = new Error("Description block not found.");
+            request.pushErrorMessage(err);
+            throw err;
+        }
+    }
 
     let description = descriptionFeaturesEl
         .find("#productDescription")
