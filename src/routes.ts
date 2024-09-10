@@ -55,14 +55,14 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     }
 
     const descriptionFeaturesEl = $("#btf_arenas");
-    // check description part loaded
-    if (descriptionFeaturesEl.length < 1) {
-        if (request.retryCount < (request.maxRetries || 50)) {
-            const err = new Error("Description block not found.");
-            request.pushErrorMessage(err);
-            throw err;
-        }
-    }
+    // // check description part present
+    // if (descriptionFeaturesEl.length < 1) {
+    //     if (request.retryCount < (request.maxRetries || 50)) {
+    //         const err = new Error("Description block not found.");
+    //         request.pushErrorMessage(err);
+    //         throw err;
+    //     }
+    // }
 
     let description = descriptionFeaturesEl
         .find("#productDescription")
@@ -79,7 +79,9 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     }
 
     // add default price (offer list has no price present, when there are no other offers)
-    let price = $("#buybox .a-price .a-offscreen").text().trim();
+    let price = $("#corePrice_desktop .apexPriceToPay .a-offscreen")
+        .text()
+        .trim();
 
     if (price === "" && $("#outOfStockBuyBox_feature_div").length > 0) {
         // out of stock -> no offer
