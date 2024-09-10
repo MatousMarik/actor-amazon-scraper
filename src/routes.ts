@@ -9,7 +9,8 @@ router.addDefaultHandler(() => {
     throw new MissingRouteError("Default route reached.");
 });
 
-router.addHandler(LABELS.START, async ({ $, log, addRequests }) => {
+router.addHandler(LABELS.START, async ({ $, log, addRequests, request }) => {
+    const { keyword } = request.userData;
     log.debug("START route:");
     // TODO: captcha check (now fails naturally)
     const products = $(
@@ -31,7 +32,8 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests }) => {
                 data: {
                     title,
                     asin,
-                    itemUrl: url
+                    itemUrl: url,
+                    keyword
                 }
             }
         });
