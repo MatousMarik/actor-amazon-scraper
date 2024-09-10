@@ -69,14 +69,20 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
 
     // aplus description feature
     if (description === "") {
-        description = descriptionFeaturesEl
-            .find(".launchpad-module-brand-description-left")
-            .text()
-            .trim();
+        // description = descriptionFeaturesEl
+        //     .find("#aplus_feature_div #aplus")
+        //     .text()
+        //     .trim();
+        description = "aplus";
     }
 
-    // add price, offer list shows without any price present, when there are no other offers
-    const price = $("#buybox .a-price .a-offscreen").text().trim();
+    // add default price (offer list has no price present, when there are no other offers)
+    let price = $("#buybox .a-price .a-offscreen").text().trim();
+
+    if (price === "" && $("#outOfStockBuyBox_feature_div").length > 0) {
+        // out of stock -> no offer
+        price = "out-of-stock";
+    }
 
     await addRequests([
         {
