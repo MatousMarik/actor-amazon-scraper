@@ -1,3 +1,5 @@
+import { writeFile } from "fs";
+
 import { createCheerioRouter, MissingRouteError, Dataset } from "crawlee";
 
 import { LABELS, BASE_URL } from "./constants.js";
@@ -60,6 +62,11 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
         if (request.retryCount < (request.maxRetries || 50)) {
             const err = new Error("Description block not found.");
             request.pushErrorMessage(err);
+            const html = $.html();
+            writeFile(`htmls/${html}.html`, html, (e) => {
+                if (e) throw e;
+                console.log("The file has been saved!");
+            });
             throw err;
         }
     }
@@ -71,11 +78,15 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
 
     // aplus description feature
     if (description === "") {
-        // description = descriptionFeaturesEl
-        //     .find("#aplus_feature_div #aplus")
-        //     .text()
-        //     .trim();
-        description = "aplus";
+        const aplusImages = descriptionFeaturesEl.find(
+            "#aplus_feature_div #aplus img"
+        );
+        log.info("aplus");
+        console.log(request.loadedUrl);
+        console.log(aplusImages);
+        console.log(aplusImages.length);
+        console.log("\n\n\n", aplusImages.attr("src"), "\n\n\n");
+        description = `aplus${aplusImages.attr("src")?.toString() || ""}`;
     }
 
     // add default price (offer list has no price present, when there are no other offers)
