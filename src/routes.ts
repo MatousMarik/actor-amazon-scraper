@@ -65,7 +65,7 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
             const html = $.html();
             writeFile(`htmls/${data.asin}.html`, html, (e) => {
                 if (e) throw e;
-                console.log("The file has been saved!");
+                console.log(`The file has been saved!\nURL: ${request.url}\nLoadedURL: ${request.loadedUrl}`);
             });
             throw err;
         }
