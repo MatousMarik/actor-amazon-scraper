@@ -63,9 +63,14 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
             const err = new Error("Description block not found.");
             request.pushErrorMessage(err);
             const html = $.html();
-            writeFile(`htmls/${data.asin}.html`, html, (e) => {
+            const timestamp = Date.now();
+            writeFile(`htmls/${data.asin}-${timestamp}.html`, html, (e) => {
                 if (e) throw e;
-                console.log(`The file has been saved!\nURL: ${request.url}\nLoadedURL: ${request.loadedUrl}`);
+                console.log(`The html file has been saved!\nURL: ${request.url}\nLoadedURL: ${request.loadedUrl}`);
+            });
+            writeFile(`htmls/links-${timestamp}`, `URL: ${request.url}\nLoadedURL: ${request.loadedUrl}`, (e) => {
+                if (e) throw e;
+                console.log(`Links have been saved!`);
             });
             throw err;
         }
