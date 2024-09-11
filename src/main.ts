@@ -13,6 +13,8 @@ const { keyword = 'iphone', useProxy = false } = (await Actor.getInput<Input>())
 // Grab our keyword from the input
 // const { keyword = 'iphone', useProxies = 'false' } = (await KeyValueStore.getInput<Input>()) ?? {};
 
+export const dataset = await Actor.openDataset(`offers-${keyword.replace(' ', '-')}`);
+
 const proxyConfiguration = useProxy
     ? await Actor.createProxyConfiguration({
         countryCode: 'US',
