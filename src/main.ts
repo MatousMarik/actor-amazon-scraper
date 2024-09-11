@@ -1,6 +1,6 @@
 // For more information, see https://crawlee.dev/
 import { Actor } from 'apify';
-import { CheerioCrawler, log, Dataset } from 'crawlee';
+import { CheerioCrawler, log } from 'crawlee';
 
 import { BASE_URL, LABELS } from './constants.js';
 import { router } from './routes.js';
@@ -44,8 +44,14 @@ log.info('Starting.');
 
 await crawler.run();
 
-await Dataset.exportToJSON('results');
-await Actor.pushData(Dataset.getData());
+const { items } = await dataset.getData();
+
+const cheapestOffer = items.reduce((cheapest, curr) => {
+    if (+cheapest.price > curr.price) return curr;
+    return cheapest;
+}, { price: Number.MAX_VALUE });
+
+await Actor.setValue('CHEAPEST_OFFER', cheapestOffer);
 
 await Actor.exit();
 log.info('Finished.');
