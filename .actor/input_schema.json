@@ -1,5 +1,5 @@
 {
-    "title": "Scrape offers from amazon gor specified keyword",
+    "title": "Dummy Amazon Scraper",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
