@@ -10,9 +10,6 @@ await Actor.init();
 
 const { keyword = 'iphone', useProxy = false } = (await Actor.getInput<Input>()) ?? {};
 
-// Grab our keyword from the input
-// const { keyword = 'iphone', useProxies = 'false' } = (await KeyValueStore.getInput<Input>()) ?? {};
-
 export const dataset = await Actor.openDataset(`offers-${keyword.replace(' ', '-')}`);
 
 const proxyConfiguration = useProxy
@@ -30,7 +27,9 @@ const crawler = new CheerioCrawler({
 
 await crawler.addRequests([
     {
-        url: `${BASE_URL}/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=${keyword}`,
+        // TODO: check for other special chars in keyword
+        url: `${BASE_URL}/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=${
+            keyword.replace(' ', '+')}`,
         label: LABELS.START,
         userData: {
             data: {
