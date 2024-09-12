@@ -44,14 +44,25 @@ log.info('Starting.');
 
 await crawler.run();
 
-const { items } = await dataset.getData();
+log.info('Crawler finished.');
 
-const cheapestOffer = items.reduce((cheapest, curr) => {
-    if (+cheapest.price > curr.price) return curr;
-    return cheapest;
-}, { price: Number.MAX_VALUE });
+const getCheapestOffer = async () => {
+    const { items } = await dataset.getData();
 
-await Actor.setValue('CHEAPEST_OFFER', cheapestOffer);
+    // find lowest price
+    const cheapestOffer = items.reduce((cheapest, curr) => {
+        const priceStr = curr.price;
+        // No price -> 0 would be cheapest price...
+        if (priceStr === '') return cheapest;
+        // False in case +priceStr -> NaN (price value missing (e. g. 'undeliverable'))
+        if (+cheapest.price.slice(1) > +priceStr.slice(1)) return curr;
+        return cheapest;
+    }, { price: `$${Number.MAX_VALUE}` });
+
+    return cheapestOffer;
+};
+
+await Actor.setValue('CHEAPEST_OFFER', await getCheapestOffer());
 
 await Actor.exit();
 log.info('Finished.');
