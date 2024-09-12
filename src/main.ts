@@ -47,9 +47,11 @@ await crawler.run();
 log.info('Crawler finished.');
 
 const getCheapestOffer = async () => {
+    // Return cheapest offer found in dataset
+    // (comparison by price, "" and not "$number.number" ommited)
     const { items } = await dataset.getData();
 
-    // find lowest price
+    // find lowest price item
     const cheapestOffer = items.reduce((cheapest, curr) => {
         const priceStr = curr.price;
         // No price -> 0 would be cheapest price...
@@ -57,8 +59,9 @@ const getCheapestOffer = async () => {
         // False in case +priceStr -> NaN (price value missing (e. g. 'undeliverable'))
         if (+cheapest.price.slice(1) > +priceStr.slice(1)) return curr;
         return cheapest;
-    }, { price: `$${Number.MAX_VALUE}` });
+    }, { price: `$${Number.MAX_VALUE}`, initialDummyOffer: true });
 
+    if (cheapestOffer.initialDummyOffer) return null;
     return cheapestOffer;
 };
 
