@@ -1,4 +1,4 @@
-import { createCheerioRouter, MissingRouteError } from 'crawlee';
+import { createCheerioRouter, Dataset, MissingRouteError } from 'crawlee';
 
 import { LABELS, BASE_URL } from './constants.js';
 import { dataset } from './main.js';
@@ -133,5 +133,6 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
         // TODO: don't know why seller is not found but in such case only one result is added
         if (sellerName === '' && request.retryCount < 10) throw new Error('No seller found.');
         await dataset.pushData({ ...data, price, sellerName });
+        await Dataset.pushData({ ...data, price, sellerName });
     }
 });
