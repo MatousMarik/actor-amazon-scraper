@@ -9,8 +9,7 @@ import { getCheapestOffer, initTracker, Stats } from './utils.js';
 
 await Actor.init();
 
-const stats = new Stats(true);
-await stats.initialize();
+await Stats.initialize(true);
 
 await initTracker();
 
@@ -27,11 +26,13 @@ const proxyConfiguration = useProxy
 
 const crawler = new CheerioCrawler({
     requestHandler: router,
-    navigationTimeoutSecs: 5,
+    navigationTimeoutSecs: 10,
     proxyConfiguration,
     maxRequestRetries: 50,
+
     useSessionPool: true,
     sessionPoolOptions: {
+        persistStateKey: 'AMAZON-SESSIONS',
         sessionOptions: {
             maxUsageCount: 5,
             maxErrorScore: 1,
