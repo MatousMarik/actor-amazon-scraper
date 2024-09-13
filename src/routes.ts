@@ -1,9 +1,9 @@
-import { createCheerioRouter, Dataset, MissingRouteError } from 'crawlee';
+import { CheerioCrawlingContext, createCheerioRouter, Dataset, MissingRouteError } from 'crawlee';
 
 import { LABELS, BASE_URL } from './constants.js';
 import { namedDataset } from './main.js';
 import { MyRequest } from './types.js';
-import { addASINToTracker } from './utils.js';
+import { addASINToTracker, Stats } from './utils.js';
 
 export const router = createCheerioRouter();
 
@@ -117,7 +117,7 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     ]);
 });
 
-router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
+router.addHandler(LABELS.OFFERS, async ({ $, request, log, crawler }) => {
     const { data } = (request as MyRequest).userData;
     log.debug(`OFFERS ${data.asin}:`);
 
@@ -135,9 +135,23 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
 
         // TODO: don't know why seller is not found but in such case only one result is added
         if (sellerName === '' && request.retryCount < 10) throw new Error('No seller found.');
-        await namedDataset.pushData({ ...data, price, sellerName });
-        await Dataset.pushData({ ...data, price, sellerName });
+        const offer = {
+            ...data,
+            price,
+            sellerName,
+            dateHandled: request.handledAt || new Date().toISOString(),
+            numberOfRetries: request.retryCount,
+            currentPendingRequests: (await crawler.requestQueue?.getInfo())?.pendingRequestCount,
+        };
 
-        addASINToTracker(data.asin);
+        // await namedDataset.pushData(offer);
+        await Dataset.pushData(offer);
+
+        addASINToTracker(offer.asin);
+        Stats.addSaved();
     }
 });
+
+export const errorHandler = async ({ request }: CheerioCrawlingContext, error: Error) => {
+    Stats.setErrors(request.url, error.message);
+};

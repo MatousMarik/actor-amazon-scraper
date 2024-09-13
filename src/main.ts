@@ -3,7 +3,7 @@ import { Actor } from 'apify';
 import { CheerioCrawler, log } from 'crawlee';
 
 import { BASE_URL, LABELS } from './constants.js';
-import { router } from './routes.js';
+import { errorHandler, router } from './routes.js';
 import { Input, Offer } from './types.js';
 import { getCheapestOffer, initTracker, Stats } from './utils.js';
 
@@ -39,6 +39,7 @@ const crawler = new CheerioCrawler({
         },
     },
     maxConcurrency: 50,
+    errorHandler,
 });
 
 await crawler.addRequests([
