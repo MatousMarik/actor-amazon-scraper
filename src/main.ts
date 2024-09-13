@@ -11,12 +11,6 @@ await Actor.init();
 
 await initTracker();
 
-Actor.on(EventType.PERSIST_STATE, async () => {
-    log.info(`SAVING TEST:`);
-    await Actor.setValue('TEST', { blob: 10 });
-    await Actor.setValue('TEST_RECORD', { blob: 10 } as Record<string, number>);
-});
-
 Actor.on(EventType.EXIT, async () => {
     log.info(`SAVING TEST EXIT:`);
     await Actor.setValue('TEST_EXIT', { blob: 10 });

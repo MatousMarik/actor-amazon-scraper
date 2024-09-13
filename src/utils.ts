@@ -33,11 +33,6 @@ const getASINTrackerUpdateFunc = async () => {
 
     const asinKey = 'ASINS';
 
-    Actor.on(EventType.PERSIST_STATE, async () => {
-        log.info(`SAVING STATE: ${state}`);
-        await Actor.setValue(asinKey, state);
-    });
-
     const initTracker = async () => {
         const initValue = await Actor.getValue(asinKey);
         if (initValue) {
@@ -45,6 +40,11 @@ const getASINTrackerUpdateFunc = async () => {
                 state[key] = +value;
             });
         }
+
+        Actor.on(EventType.PERSIST_STATE, async () => {
+            log.info(`SAVING STATE: ${state}`);
+            await Actor.setValue(asinKey, state);
+        });
     };
 
     const addASIN = (asin: string) => {
