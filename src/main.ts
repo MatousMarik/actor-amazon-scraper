@@ -27,6 +27,14 @@ const crawler = new CheerioCrawler({
     navigationTimeoutSecs: 5,
     proxyConfiguration,
     maxRequestRetries: 50,
+    useSessionPool: true,
+    sessionPoolOptions: {
+        sessionOptions: {
+            maxUsageCount: 5,
+            maxErrorScore: 1,
+        },
+    },
+    maxConcurrency: 50,
 });
 
 await crawler.addRequests([
