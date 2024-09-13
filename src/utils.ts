@@ -5,7 +5,7 @@ import { Offer } from './types.js';
 
 export const getCheapestOffer = async (offers: Offer[]) => {
     // Return cheapest offer found in dataset
-    // (comparison by price, "" and not "$number.number" ommited)
+    // (comparison by price, "" and not "$number.number" omitted)
 
     const dummyOffer: Offer = {
         title: 'Dummy Offer',
