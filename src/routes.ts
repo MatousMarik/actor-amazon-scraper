@@ -125,7 +125,6 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
     const offerElementList = $('#aod-pinned-offer').add('#aod-offer');
 
     for (const offerElement of offerElementList) {
-        addASINToTracker(data.asin);
         const price = $('.a-price .a-offscreen', offerElement)
             .first() // avoid selecting discount
             .text()
@@ -138,5 +137,7 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
         if (sellerName === '' && request.retryCount < 10) throw new Error('No seller found.');
         await namedDataset.pushData({ ...data, price, sellerName });
         await Dataset.pushData({ ...data, price, sellerName });
+
+        addASINToTracker(data.asin);
     }
 });
