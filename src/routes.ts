@@ -166,6 +166,9 @@ export const errorHandler = async ({ request }: CheerioCrawlingContext, error: E
     Stats.addError(request.url, error.message);
 };
 
+/**
+ * For failed product request with reason missing description scrape offers anyway.
+ */
 export const failedRequestHandler = async ({ request, addRequests }: CheerioCrawlingContext, _error: Error) => {
     if (request.label !== LABELS.PRODUCT || !request.userData.noDescription) {
         return;
