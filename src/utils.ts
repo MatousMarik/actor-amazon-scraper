@@ -1,4 +1,4 @@
-import { Actor } from 'apify';
+import { Actor, log } from 'apify';
 
 import { Offer } from './types.js';
 
@@ -30,6 +30,7 @@ export const getCheapestOffer = async (offers: Offer[]) => {
 const getASINTrackerUpdateFunc = async () => {
     const state: Record<string, number> = {};
     Actor.on('persistState', async () => {
+        log.info(`SAVING STATE: ${state}`);
         await Actor.setValue('ASINS', state);
     });
     const addASIN = (asin: string) => {
