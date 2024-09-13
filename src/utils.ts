@@ -88,7 +88,7 @@ class StatsCls {
             await Actor.setValue(statsKey, this.state);
         });
 
-        if (this.logStats) setInterval(() => console.log(this.state), 10000);
+        if (this.logStats) setInterval(() => log.info('STATS state', this.state), 10000);
     }
 
     setErrors(url: string, errorMessage: string) {
