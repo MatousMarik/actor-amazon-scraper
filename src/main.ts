@@ -1,6 +1,6 @@
 // For more information, see https://crawlee.dev/
 import { Actor } from 'apify';
-import { CheerioCrawler, EventType, log } from 'crawlee';
+import { CheerioCrawler, log } from 'crawlee';
 
 import { BASE_URL, LABELS } from './constants.js';
 import { router } from './routes.js';
@@ -10,11 +10,6 @@ import { getCheapestOffer, initTracker } from './utils.js';
 await Actor.init();
 
 await initTracker();
-
-Actor.on(EventType.EXIT, async () => {
-    log.info(`SAVING TEST EXIT:`);
-    await Actor.setValue('TEST_EXIT', { blob: 10 });
-});
 
 const { keyword = 'iphone', useProxy = false } = (await Actor.getInput<Input>()) ?? {};
 
