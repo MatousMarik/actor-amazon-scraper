@@ -1,4 +1,5 @@
 import { Actor, log } from 'apify';
+import { EventType } from 'crawlee';
 
 import { Offer } from './types.js';
 
@@ -29,10 +30,23 @@ export const getCheapestOffer = async (offers: Offer[]) => {
 };
 const getASINTrackerUpdateFunc = async () => {
     const state: Record<string, number> = {};
-    Actor.on('persistState', async () => {
+
+    const asinKey = 'ASINS';
+
+    Actor.on(EventType.PERSIST_STATE, async () => {
         log.info(`SAVING STATE: ${state}`);
-        await Actor.setValue('ASINS', state);
+        await Actor.setValue(asinKey, state);
     });
+
+    const initTracker = async () => {
+        const initValue = await Actor.getValue(asinKey);
+        if (initValue) {
+            Object.entries(initValue).forEach(([key, value]) => {
+                state[key] = +value;
+            });
+        }
+    };
+
     const addASIN = (asin: string) => {
         if (state[asin] === undefined) {
             state[asin] = 0;
@@ -40,7 +54,7 @@ const getASINTrackerUpdateFunc = async () => {
         }
         state[asin] += 1;
     };
-    return addASIN;
+    return { initTracker, addASIN };
 };
 
-export const addASINToTracker = await getASINTrackerUpdateFunc();
+export const { initTracker, addASIN: addASINToTracker } = await getASINTrackerUpdateFunc();

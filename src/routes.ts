@@ -7,8 +7,6 @@ import { addASINToTracker } from './utils.js';
 
 export const router = createCheerioRouter();
 
-const addASIN = addASINToTracker;
-
 router.addDefaultHandler(() => {
     throw new MissingRouteError('Default route reached.');
 });
@@ -29,7 +27,7 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests, request }) => {
         const url = `${BASE_URL}${link.attr('href')}`;
         const title = link.text().trim();
 
-        addASIN(asin);
+        addASINToTracker(asin);
 
         requests.push({
             url,
@@ -127,7 +125,7 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
     const offerElementList = $('#aod-pinned-offer').add('#aod-offer');
 
     for (const offerElement of offerElementList) {
-        addASIN(data.asin);
+        addASINToTracker(data.asin);
         const price = $('.a-price .a-offscreen', offerElement)
             .first() // avoid selecting discount
             .text()

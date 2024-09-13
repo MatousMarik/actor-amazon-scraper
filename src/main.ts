@@ -5,24 +5,21 @@ import { CheerioCrawler, EventType, log } from 'crawlee';
 import { BASE_URL, LABELS } from './constants.js';
 import { router } from './routes.js';
 import { Input, Offer } from './types.js';
-import { getCheapestOffer } from './utils.js';
+import { getCheapestOffer, initTracker } from './utils.js';
+
+await Actor.init();
+
+await initTracker();
 
 Actor.on(EventType.PERSIST_STATE, async () => {
     log.info(`SAVING TEST:`);
     await Actor.setValue('TEST', { blob: 10 });
-    await Actor.setValue('TEST RECORD', { blob: 10 } as Record<string, number>);
+    await Actor.setValue('TEST_RECORD', { blob: 10 } as Record<string, number>);
 });
 
 Actor.on(EventType.EXIT, async () => {
-    log.info(`SAVING TEST:`);
+    log.info(`SAVING TEST EXIT:`);
     await Actor.setValue('TEST_EXIT', { blob: 10 });
-});
-
-await Actor.init();
-
-Actor.on(EventType.EXIT, async () => {
-    log.info(`SAVING TEST:`);
-    await Actor.setValue('TEST_EXIT_AI', { blob: 10 });
 });
 
 const { keyword = 'iphone', useProxy = false } = (await Actor.getInput<Input>()) ?? {};
