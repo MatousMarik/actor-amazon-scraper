@@ -19,3 +19,8 @@ export interface MyRequest {
         data: Offer;
     };
 }
+
+export interface StatsState {
+    errors: Record<string, string[]>;
+    totalSaved: number;
+}

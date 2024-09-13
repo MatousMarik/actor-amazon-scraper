@@ -1,7 +1,7 @@
 import { Actor, log } from 'apify';
 import { EventType } from 'crawlee';
 
-import { Offer } from './types.js';
+import { Offer, StatsState } from './types.js';
 
 export const getCheapestOffer = async (offers: Offer[]) => {
     // Return cheapest offer found in dataset
@@ -60,3 +60,42 @@ const getASINTrackerUpdateFunc = async () => {
 };
 
 export const { initTracker, addASIN: addASINToTracker } = await getASINTrackerUpdateFunc();
+
+export class Stats {
+    logStats: boolean;
+    state: StatsState;
+
+    constructor(logStats: boolean = false) {
+        this.logStats = logStats;
+        this.state = {
+            errors: {},
+            totalSaved: 0,
+        };
+    }
+
+    async initialize() {
+        const statsKey = 'STATS';
+        const state = (await Actor.getValue(statsKey)) as StatsState;
+        if (state) {
+            Object.entries(state.errors).forEach(([key, value]) => {
+                this.state.errors[key] = value;
+            });
+            this.state.totalSaved = state.totalSaved;
+        }
+
+        Actor.on(EventType.PERSIST_STATE, async () => {
+            await Actor.setValue(statsKey, this.state);
+        });
+
+        if (this.logStats) setInterval(() => console.log(this.state), 10000);
+    }
+
+    addError(url: string, errorMessage: string) {
+        if (!this.state.errors[url]) this.state.errors[url] = [];
+        this.state.errors[url].push(errorMessage);
+    }
+
+    addSaved() {
+        this.state.totalSaved += 1;
+    }
+}

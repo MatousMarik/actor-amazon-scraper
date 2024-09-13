@@ -5,9 +5,12 @@ import { CheerioCrawler, log } from 'crawlee';
 import { BASE_URL, LABELS } from './constants.js';
 import { router } from './routes.js';
 import { Input, Offer } from './types.js';
-import { getCheapestOffer, initTracker } from './utils.js';
+import { getCheapestOffer, initTracker, Stats } from './utils.js';
 
 await Actor.init();
+
+const stats = new Stats(true);
+await stats.initialize();
 
 await initTracker();
 
