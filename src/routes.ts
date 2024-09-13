@@ -120,6 +120,7 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
                     price,
                     description,
                 },
+                productNumberOfRetries: request.retryCount,
             },
         },
     ]);
@@ -142,13 +143,14 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log, crawler }) => {
             .trim();
 
         // TODO: don't know why seller is not found but in such case only one result is added
-        if (sellerName === '' && request.retryCount < 10) throw new Error('No seller found.');
+        // do fail request hack again?
+        if (sellerName === '' && request.retryCount < (request.maxRetries || 50) / 2) throw new Error('No seller found.');
         const offer = {
             ...data,
             price,
             sellerName,
             dateHandled: request.handledAt || new Date().toISOString(),
-            numberOfRetries: request.retryCount,
+            numberOfRetries: +request.userData.productNumberOfRetries + request.retryCount,
             currentPendingRequests: (await crawler.requestQueue?.getInfo())?.pendingRequestCount,
         };
 
@@ -179,6 +181,7 @@ export const failedRequestHandler = async ({ request, addRequests }: CheerioCraw
                 data: {
                     ...data,
                 },
+                productNumberOfRetries: request.retryCount,
             },
         },
     ]);

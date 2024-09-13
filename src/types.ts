@@ -19,6 +19,7 @@ export interface MyRequest {
     userData: {
         data: Offer;
         noDescription?: boolean;
+        productNumberOfRetries?: number;
     };
 }
 
