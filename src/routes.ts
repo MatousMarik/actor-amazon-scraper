@@ -1,7 +1,7 @@
 import { CheerioCrawlingContext, createCheerioRouter, Dataset, MissingRouteError } from 'crawlee';
 
 import { LABELS, BASE_URL } from './constants.js';
-import { namedDataset } from './main.js';
+// import { namedDataset } from './main.js';
 import { MyRequest } from './types.js';
 import { addASINToTracker, Stats } from './utils.js';
 
