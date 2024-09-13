@@ -42,12 +42,14 @@ const getASINTrackerUpdateFunc = async () => {
         }
 
         Actor.on(EventType.PERSIST_STATE, async () => {
-            log.info(`SAVING STATE: ${state}`);
+            log.debug(`SAVING STATE: ${state}`);
             await Actor.setValue(asinKey, state);
         });
+        log.debug('Tracker initialized');
     };
 
     const addASIN = (asin: string) => {
+        log.debug(`Adding asin "${asin}" to tracker.`);
         if (state[asin] === undefined) {
             state[asin] = 0;
             return;
