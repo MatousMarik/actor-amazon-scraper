@@ -153,5 +153,5 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log, crawler }) => {
 });
 
 export const errorHandler = async ({ request }: CheerioCrawlingContext, error: Error) => {
-    Stats.setErrors(request.url, error.message);
+    Stats.addError(request.url, error.message);
 };

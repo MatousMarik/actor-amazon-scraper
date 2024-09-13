@@ -3,9 +3,14 @@ import { EventType } from 'crawlee';
 
 import { Offer, StatsState } from './types.js';
 
-export const getCheapestOffer = async (offers: Offer[]) => {
-    // Return cheapest offer found in dataset
-    // (comparison by price, "" and not "$number.number" omitted)
+/**
+ * Return the cheapest offer from the array.
+ *
+ * Offers are compared by price property of value "$number"
+ * (offers with invalid price values are skipped)
+ */
+export const getCheapestOffer = (offers: Offer[]) => {
+    // Comparison by price -> string "$number"
 
     const dummyOffer: Offer = {
         title: 'Dummy Offer',
@@ -28,11 +33,21 @@ export const getCheapestOffer = async (offers: Offer[]) => {
     if (cheapestOffer === dummyOffer) return null;
     return cheapestOffer;
 };
+
+/**
+ * ASIN Tracker closure functions:
+ * - initTracker: Initialize Tracker state by KVStore 'ASINS' and set it to run on persistState events.
+ * - addASIN: Add ASIN to the state (first addition sets count to 0)
+ * @returns \{ initTracker: () => Promise<void>; addASIN: (asin: string) => void }
+ */
 const getASINTrackerUpdateFunc = async () => {
     const state: Record<string, number> = {};
 
     const asinKey = 'ASINS';
 
+    /**
+     * Initialize Tracker state by KVStore 'ASINS' and set it to run on persistState events.
+     */
     const initTracker = async () => {
         const initValue = await Actor.getValue(asinKey);
         if (initValue) {
@@ -48,6 +63,11 @@ const getASINTrackerUpdateFunc = async () => {
         log.debug('Tracker initialized');
     };
 
+    /**
+     * Add ASIN to the state
+     * (first addition sets count to 0)
+     * @param {string} asin - Product ASIN Id
+     */
     const addASIN = (asin: string) => {
         log.debug(`Adding asin "${asin}" to tracker.`);
         if (state[asin] === undefined) {
@@ -73,6 +93,10 @@ class StatsCls {
         };
     }
 
+    /**
+     * Initialize Stats state by KVStore 'STATS' and set it to run on persistState events.
+     * @param logStats - log.info stats each 10 seconds
+     */
     async initialize(logStats: boolean = false) {
         this.logStats = logStats;
         const statsKey = 'STATS';
@@ -91,14 +115,25 @@ class StatsCls {
         if (this.logStats) setInterval(() => log.info('STATS state', this.state), 10000);
     }
 
-    setErrors(url: string, errorMessage: string) {
+    /**
+     * Add error for url request to stats.
+     * @param url error handled request url
+     */
+    addError(url: string, errorMessage: string) {
         if (!this.state.errors[url]) this.state.errors[url] = [];
         this.state.errors[url].push(errorMessage);
     }
 
+    /**
+     * Inc totalSaved counter.
+     */
     addSaved() {
         this.state.totalSaved += 1;
     }
 }
 
+/**
+ * Stats logger and tracker instance.
+ * Has to be initialized by .initialize().
+ */
 export const Stats = new StatsCls();

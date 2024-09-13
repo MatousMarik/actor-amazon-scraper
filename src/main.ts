@@ -62,7 +62,7 @@ await crawler.run();
 
 log.info('Crawler finished./\nCalculating cheapest offer.');
 
-await Actor.setValue('CHEAPEST_OFFER', await getCheapestOffer((await namedDataset.getData()).items as Offer[]));
+await Actor.setValue('CHEAPEST_OFFER', getCheapestOffer((await namedDataset.getData()).items as Offer[]));
 
 await Actor.exit();
 log.info('Finished.');
