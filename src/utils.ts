@@ -61,19 +61,20 @@ const getASINTrackerUpdateFunc = async () => {
 
 export const { initTracker, addASIN: addASINToTracker } = await getASINTrackerUpdateFunc();
 
-export class Stats {
+class StatsCls {
     logStats: boolean;
     state: StatsState;
 
-    constructor(logStats: boolean = false) {
-        this.logStats = logStats;
+    constructor() {
+        this.logStats = false;
         this.state = {
             errors: {},
             totalSaved: 0,
         };
     }
 
-    async initialize() {
+    async initialize(logStats: boolean = false) {
+        this.logStats = logStats;
         const statsKey = 'STATS';
         const state = (await Actor.getValue(statsKey)) as StatsState;
         if (state) {
@@ -90,7 +91,7 @@ export class Stats {
         if (this.logStats) setInterval(() => console.log(this.state), 10000);
     }
 
-    addError(url: string, errorMessage: string) {
+    setErrors(url: string, errorMessage: string) {
         if (!this.state.errors[url]) this.state.errors[url] = [];
         this.state.errors[url].push(errorMessage);
     }
@@ -99,3 +100,5 @@ export class Stats {
         this.state.totalSaved += 1;
     }
 }
+
+export const Stats = new StatsCls();

@@ -12,6 +12,7 @@ export interface Offer {
     description?: string;
     sellerName?: string;
 }
+
 export interface MyRequest {
     url: string;
     label: string;
