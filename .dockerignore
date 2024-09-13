@@ -1,5 +1,6 @@
 # configurations
 .idea
+.vscode
 
 # crawlee storage folder
 storage
