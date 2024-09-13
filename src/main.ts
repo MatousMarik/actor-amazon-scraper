@@ -3,7 +3,7 @@ import { Actor } from 'apify';
 import { CheerioCrawler, log } from 'crawlee';
 
 import { BASE_URL, LABELS } from './constants.js';
-import { errorHandler, router } from './routes.js';
+import { errorHandler, failedRequestHandler, router } from './routes.js';
 import { Input, Offer } from './types.js';
 import { getCheapestOffer, initTracker, Stats } from './utils.js';
 
@@ -38,8 +38,9 @@ const crawler = new CheerioCrawler({
             maxErrorScore: 1,
         },
     },
-    maxConcurrency: 50,
+    maxConcurrency: 4,
     errorHandler,
+    failedRequestHandler,
 });
 
 await crawler.addRequests([
@@ -60,7 +61,7 @@ log.info('Starting.');
 
 await crawler.run();
 
-log.info('Crawler finished./\nCalculating cheapest offer.');
+log.info('Crawler finished./\n      Calculating cheapest offer.');
 
 await Actor.setValue('CHEAPEST_OFFER', getCheapestOffer((await namedDataset.getData()).items as Offer[]));
 

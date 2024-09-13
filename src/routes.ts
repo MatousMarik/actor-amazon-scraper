@@ -1,6 +1,6 @@
 import { CheerioCrawlingContext, createCheerioRouter, Dataset, MissingRouteError } from 'crawlee';
 
-import { LABELS, BASE_URL } from './constants.js';
+import { LABELS, BASE_URL, OFFER_REL_URL } from './constants.js';
 // import { namedDataset } from './main.js';
 import { MyRequest } from './types.js';
 import { addASINToTracker, Stats } from './utils.js';
@@ -54,36 +54,7 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     // captcha
     if ($('form[action*=/errors/validateCaptcha]').length > 0) {
         const err = new Error('Captcha.');
-        request.pushErrorMessage(err);
         throw err;
-    }
-
-    const descriptionFeaturesEl = $('#btf_arenas');
-    // check description part present
-    if (descriptionFeaturesEl.length < 1) {
-        // TODO: not sure why sometimes description is missing, when I load link in browser
-        // it is always loaded fully by single request
-        // => so I add this to retry and process offers when description is not found
-        // only for half of retries so captchas can be retried...
-        if (request.retryCount < (request.maxRetries || 50) / 2) {
-            const err = new Error('Description block not found.');
-            request.pushErrorMessage(err);
-            throw err;
-        }
-    }
-
-    let description = descriptionFeaturesEl
-        .find('#productDescription')
-        .text()
-        .trim();
-
-    if (description === '') {
-        const aplus = descriptionFeaturesEl.find('#aplus_feature_div #aplus');
-        if (aplus.length > 1) {
-            description = 'aplus';
-        } else {
-            description = 'not found';
-        }
     }
 
     // add default price (offer list might have no price present, when there are no other offers)
@@ -95,16 +66,53 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
     // another default price selector
     if (price === '') {
         price = $('.priceToPay').text().trim();
+
+        if (price === '') {
+            if (('#outOfStockBuyBox_feature_div').length > 0) {
+                // out of stock -> no offer for location
+                price = 'undeliverable';
+            }
+            price = 'not found';
+        }
     }
 
-    if (price === '' && $('#outOfStockBuyBox_feature_div').length > 0) {
-        // out of stock -> no offer for location
-        price = 'undeliverable';
+    let description = 'not found';
+
+    const descriptionFeaturesEl = $('#btf_arenas');
+    // check description part present
+    if (descriptionFeaturesEl.length < 1) {
+        // TODO: not sure why sometimes description is missing, when I load link in browser
+        // it is always loaded fully by single request
+
+        // fill request with default found values, flag noDescription and retry
+        request.userData.data = {
+            ...data,
+            price,
+            description,
+        };
+        request.userData.noDescription = true;
+        const err = new Error('Description block not found.');
+        throw err;
+    }
+
+    description = descriptionFeaturesEl
+        .find('#productDescription')
+        .text()
+        .trim();
+
+    if (description === '') {
+        const aplus = descriptionFeaturesEl.find('#aplus_feature_div #aplus');
+        if (aplus.length > 1) {
+            // TODO: scrape images links?
+            description = 'aplus';
+        } else {
+            description = 'not found';
+        }
     }
 
     await addRequests([
         {
-            url: `${BASE_URL}/gp/product/ajax/ref=dp_aod_ALL_mbc?pc=dp&experienceId=aodAjaxMain&asin=${data.asin}`,
+            url: `${BASE_URL}${OFFER_REL_URL}${data.asin}`,
             label: LABELS.OFFERS,
             userData: {
                 data: {
@@ -154,4 +162,24 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log, crawler }) => {
 
 export const errorHandler = async ({ request }: CheerioCrawlingContext, error: Error) => {
     Stats.addError(request.url, error.message);
+};
+
+export const failedRequestHandler = async ({ request, addRequests }: CheerioCrawlingContext, _error: Error) => {
+    if (request.label !== LABELS.PRODUCT || !request.userData.noDescription) {
+        return;
+    }
+
+    // handle missing description product
+    const { data } = (request as MyRequest).userData;
+    await addRequests([
+        {
+            url: `${BASE_URL}${OFFER_REL_URL}${data.asin}`,
+            label: LABELS.OFFERS,
+            userData: {
+                data: {
+                    ...data,
+                },
+            },
+        },
+    ]);
 };

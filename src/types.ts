@@ -18,6 +18,7 @@ export interface MyRequest {
     label: string;
     userData: {
         data: Offer;
+        noDescription?: boolean;
     };
 }
 
