@@ -18,6 +18,7 @@ export const namedDataset = await Actor.openDataset(`offers-${keyword.replace(' 
 const proxyConfiguration = useProxy
     ? await Actor.createProxyConfiguration({
         countryCode: 'US',
+        groups: ['RESIDENTAL'],
     })
     : undefined;
 
