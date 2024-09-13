@@ -11,7 +11,7 @@ await Actor.init();
 
 const { keyword = 'iphone', useProxy = false } = (await Actor.getInput<Input>()) ?? {};
 
-export const dataset = await Actor.openDataset(`offers-${keyword.replace(' ', '-')}`);
+export const namedDataset = await Actor.openDataset(`offers-${keyword.replace(' ', '-')}`);
 
 const proxyConfiguration = useProxy
     ? await Actor.createProxyConfiguration({
@@ -46,7 +46,7 @@ await crawler.run();
 
 log.info('Crawler finished./\nCalculating cheapest offer.');
 
-await Actor.setValue('CHEAPEST_OFFER', await getCheapestOffer((await dataset.getData()).items as Offer[]));
+await Actor.setValue('CHEAPEST_OFFER', await getCheapestOffer((await namedDataset.getData()).items as Offer[]));
 
 await Actor.exit();
 log.info('Finished.');

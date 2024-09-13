@@ -1,3 +1,5 @@
+import { Actor } from 'apify';
+
 import { Offer } from './types.js';
 
 export const getCheapestOffer = async (offers: Offer[]) => {
@@ -25,3 +27,19 @@ export const getCheapestOffer = async (offers: Offer[]) => {
     if (cheapestOffer === dummyOffer) return null;
     return cheapestOffer;
 };
+const getASINTrackerUpdateFunc = async () => {
+    const state: Record<string, number> = {};
+    Actor.on('persistState', async () => {
+        await Actor.setValue('ASINS', state);
+    });
+    const addASIN = (asin: string) => {
+        if (state[asin] === undefined) {
+            state[asin] = 0;
+            return;
+        }
+        state[asin] += 1;
+    };
+    return addASIN;
+};
+
+export const addASINToTracker = await getASINTrackerUpdateFunc();

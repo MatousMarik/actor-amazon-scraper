@@ -1,10 +1,13 @@
 import { createCheerioRouter, Dataset, MissingRouteError } from 'crawlee';
 
 import { LABELS, BASE_URL } from './constants.js';
-import { dataset } from './main.js';
+import { namedDataset } from './main.js';
 import { MyRequest } from './types.js';
+import { addASINToTracker } from './utils.js';
 
 export const router = createCheerioRouter();
+
+const addASIN = addASINToTracker;
 
 router.addDefaultHandler(() => {
     throw new MissingRouteError('Default route reached.');
@@ -25,6 +28,8 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests, request }) => {
         const asin = product.attribs['data-asin'];
         const url = `${BASE_URL}${link.attr('href')}`;
         const title = link.text().trim();
+
+        addASIN(asin);
 
         requests.push({
             url,
@@ -101,7 +106,7 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
 
     await addRequests([
         {
-            url: `${BASE_URL}/gp/product/ajax/ref=dp_aod_ALL_mbc?asin=${data.asin}&pc=dp&experienceId=aodAjaxMain`,
+            url: `${BASE_URL}/gp/product/ajax/ref=dp_aod_ALL_mbc?pc=dp&experienceId=aodAjaxMain&asin=${data.asin}`,
             label: LABELS.OFFERS,
             userData: {
                 data: {
@@ -122,6 +127,7 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
     const offerElementList = $('#aod-pinned-offer').add('#aod-offer');
 
     for (const offerElement of offerElementList) {
+        addASIN(data.asin);
         const price = $('.a-price .a-offscreen', offerElement)
             .first() // avoid selecting discount
             .text()
@@ -132,7 +138,7 @@ router.addHandler(LABELS.OFFERS, async ({ $, request, log }) => {
 
         // TODO: don't know why seller is not found but in such case only one result is added
         if (sellerName === '' && request.retryCount < 10) throw new Error('No seller found.');
-        await dataset.pushData({ ...data, price, sellerName });
+        await namedDataset.pushData({ ...data, price, sellerName });
         await Dataset.pushData({ ...data, price, sellerName });
     }
 });
