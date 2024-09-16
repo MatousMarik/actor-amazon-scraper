@@ -89,6 +89,7 @@ class StatsCls {
         this.logStats = false;
         this.state = {
             errors: {},
+            noDescriptionProducts: [],
             totalSaved: 0,
         };
     }
@@ -122,6 +123,14 @@ class StatsCls {
     addError(url: string, errorMessage: string) {
         if (!this.state.errors[url]) this.state.errors[url] = [];
         this.state.errors[url].push(errorMessage);
+    }
+
+    /**
+     * Add product asin, whose description was not found during all retries, to the state.
+     * @param asin asin of the product.
+     */
+    addNoDescProduct(asin: string) {
+        this.state.noDescriptionProducts.push(asin);
     }
 
     /**

@@ -25,5 +25,6 @@ export interface MyRequest {
 
 export interface StatsState {
     errors: Record<string, string[]>;
+    noDescriptionProducts: string[];
     totalSaved: number;
 }

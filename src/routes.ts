@@ -176,6 +176,7 @@ export const failedRequestHandler = async ({ request, addRequests }: CheerioCraw
 
     // handle missing description product
     const { data } = (request as MyRequest).userData;
+    Stats.addNoDescProduct(data.asin);
     await addRequests([
         {
             url: `${BASE_URL}${OFFER_REL_URL}${data.asin}`,
