@@ -13,7 +13,7 @@ await Stats.initialize(true);
 
 await initTracker();
 
-const { keyword = 'iphone', useProxy = false } = (await Actor.getInput<Input>()) ?? {};
+const { keyword = 'iphone', useProxy = false, maxRetries = 50, skipNoDescription = false } = (await Actor.getInput<Input>()) ?? {};
 
 export const namedDataset = await Actor.openDataset(`offers-${keyword.replace(' ', '-')}`);
 
@@ -28,7 +28,7 @@ const crawler = new CheerioCrawler({
     requestHandler: router,
     navigationTimeoutSecs: 10,
     proxyConfiguration,
-    maxRequestRetries: 50,
+    maxRequestRetries: maxRetries,
 
     useSessionPool: true,
     sessionPoolOptions: {
@@ -50,6 +50,7 @@ await crawler.addRequests([
             keyword.replace(' ', '+')}`,
         label: LABELS.START,
         userData: {
+            skipNoDescription,
             data: {
                 keyword,
             },

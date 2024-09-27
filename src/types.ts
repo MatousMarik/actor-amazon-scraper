@@ -1,6 +1,8 @@
 export interface Input {
     keyword: string;
     useProxy: boolean;
+    maxRetries: number;
+    skipNoDescription: boolean;
 }
 
 export interface Offer {
@@ -18,6 +20,7 @@ export interface MyRequest {
     label: string;
     userData: {
         data: Offer;
+        skipNoDescription?: boolean;
         noDescription?: boolean;
         productNumberOfRetries?: number;
     };

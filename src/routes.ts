@@ -12,7 +12,7 @@ router.addDefaultHandler(() => {
 });
 
 router.addHandler(LABELS.START, async ({ $, log, addRequests, request }) => {
-    const { data } = (request as MyRequest).userData;
+    const { skipNoDescription, data } = (request as MyRequest).userData;
     log.debug('START route:');
     // TODO: captcha check (now fails naturally)
     const products = $(
@@ -33,6 +33,7 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests, request }) => {
             url,
             label: LABELS.PRODUCT,
             userData: {
+                skipNoDescription,
                 data: {
                     ...data,
                     title,
@@ -47,7 +48,7 @@ router.addHandler(LABELS.START, async ({ $, log, addRequests, request }) => {
 });
 
 router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
-    const { data } = (request as MyRequest).userData;
+    const { skipNoDescription, data } = (request as MyRequest).userData;
     log.debug(`PRODUCT ${data.asin} route:`);
     log.debug(request.loadedUrl);
 
@@ -80,7 +81,7 @@ router.addHandler(LABELS.PRODUCT, async ({ $, log, request, addRequests }) => {
 
     const descriptionFeaturesEl = $('#btf_arenas');
     // check description part present
-    if (descriptionFeaturesEl.length < 1) {
+    if (!skipNoDescription && descriptionFeaturesEl.length < 1) {
         // TODO: not sure why sometimes description is missing, when I load link in browser
         // it is always loaded fully by single request
 
