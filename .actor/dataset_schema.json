@@ -1,0 +1,41 @@
+{
+    "actorSpecification": 1,
+    "fields": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+            "keyword": {
+                "type": "string"
+            },
+            "title": {
+                "type": "string"
+            },
+            "asin": {
+                "type": "string"
+            },
+            "itemUrl": {
+                "type": "string"
+            },
+            "price": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "sellerName": {
+                "type": "string"
+            },
+            "dateHandled": {
+                "type": "string"
+            },
+            "numberOfRetries": {
+                "type": "number"
+            },
+            "currentPendingRequests": {
+                "type": "number"
+            }
+        },
+        "required": []
+    },
+    "views": {}
+}
